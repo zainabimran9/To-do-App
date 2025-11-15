@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do App</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gray-100">
+
+  <div class="max-w-lg mx-auto mt-24 p-8 bg-white rounded-xl shadow-lg">
+    <h2 class="text-2xl font-semibold text-center mb-6">To-Do App</h2>
+
+    <div class="flex gap-2">
+      <input id="todo-input"
+             placeholder="Write a task..."
+             class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+
+      <button id="add-btn"
+              class="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+        Add
+      </button>
+    </div>
+
+    <ul id="todo-list" class="mt-6 space-y-2"></ul>
+  </div>
+
+  <script>
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+    let editId = null;
+
+    const input = document.getElementById("todo-input");
+    const list = document.getElementById("todo-list");
+    const addBtn = document.getElementById("add-btn");
+
+    function save() {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+
+    function render() {
+      list.innerHTML = "";
+      todos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.className =
+          "flex justify-between items-center bg-gray-50 px-4 py-3 rounded-lg shadow-sm";
+        li.innerHTML = `
+          <span>${todo}</span>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600"
+                    onclick="edit(${index})">
+              Edit
+            </button>
+            <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                    onclick="removeTodo(${index})">
+              Delete
+            </button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function addTodo() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (editId !== null) {
+        todos[editId] = text;
+        editId = null;
+        addBtn.textContent = "Add";
+      } else {
+        todos.push(text);
+      }
+
+      input.value = "";
+      save();
+      render();
+    }
+
+    function edit(index) {
+      input.value = todos[index];
+      editId = index;
+      addBtn.textContent = "Update";
+    }
+
+    function removeTodo(index) {
+      todos.splice(index, 1);
+      save();
+      render();
+    }
+
+    addBtn.onclick = addTodo;
+    render();
+  </script>
+
+</body>
+</html>
